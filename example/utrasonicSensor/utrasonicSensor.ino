@@ -22,9 +22,10 @@ void setup() {
 }
 
 void loop() {
-  if(getDistance(frontPin)<30){
+  if(getDistance(frontPin)<40){
     Robot.motorsStop();
+    Robot.motorsWrite(255 , -255 ) ; 
   }else{
-    Robot.motorsWrite(170,170);
+    Robot.motorsWrite(255,255);
    }
 }
