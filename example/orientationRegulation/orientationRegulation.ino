@@ -2,6 +2,8 @@
 #include <SPI.h>
 #include <Wire.h>
 
+#include "orientationLibrary.h";
+
 char * oldM = 0;
 int oldX, oldY;
 
@@ -28,30 +30,30 @@ void loop()
 {
   
   easyText("To North", 30, 30);
-  pointTo(0, 0);
+  pointToCustom(0,200);
   
   easyText("To West", 30, 30);
-  pointTo(90, 0);
+  pointToCustom(90,200);
   
   easyText("To South", 30, 30);
-  pointTo(180, 0);
+  pointToCustom(180,200);
   
   easyText("To East", 30, 30);
-  pointTo(270, 0);
+  pointToCustom(270,200);
   
   Robot.beep();
   
   easyText("To North", 30, 30);
-  pointTo(0, 0);
+  pointToCustom(0,200);
   
   easyText("To East", 30, 30);
-  pointTo(270, 0);
+  pointToCustom(270,200);
   
   easyText("To South", 30, 30);
-  pointTo(180, 0);
+  pointToCustom(180,200);
   
   easyText("To West", 30, 30);
-  pointTo(90, 0);
+  pointToCustom(90,200);
   
   Robot.beep();
   
