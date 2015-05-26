@@ -80,22 +80,43 @@ int errAngular(int angleActuel,int angleObjectif){
    return erreur;
  }
  
- void pidAngular(int erreur, int erreurPrecedente, int &ML,int &MR int &sommeErreur ,int kp ,int ki , int kd){
-     sommeErreur+=erreur;
-     int deltaErreur = erreur-erreurPrecedente;
-     int pid  = kp*erreur + ki*sommeErreur + kd*deltaErreur;
-     if(pid < 0){
-       pid=0;
-     }
-     else if(pid > 255){
-       pid = 255;
-     }
-     if(erreur>0){
-       &ML = 255 - pid;
-       &MR = pid -255 ;
-     }else{
-       &MR = 255 - pid;
-       &ML = pid -255 ;
-     }
-     
- }
+void pidAngular(int error, int &ML, int &MR,){
+
+  unsigned long currentTime = millis();
+  unsigned int deltaTime;
+  float deltaError;
+  int correction;
+
+  // Init case
+  if(lastTime = 0) {
+    
+    lastTime = currentTime;
+    lastError = error;
+
+    return;
+
+  }
+
+  deltaTime = lastTime - currentTime;
+  lastTime = currentTime;
+  sumError += error*deltaTime;
+  deltaError = (error-lastError)/deltaTime;
+  correction = kp*error + ki*sumError + kd*deltaError;
+
+  /*
+  if(pid < 0){
+    pid=0;
+  }
+  else if(pid > 255){
+    pid = 255;
+  }
+  if(erreur>0){
+    &ML = 255 - pid;
+    &MR = pid -255 ;
+  }else{
+    &MR = 255 - pid;
+    &ML = pid -255 ;
+  }
+  */
+  
+}
