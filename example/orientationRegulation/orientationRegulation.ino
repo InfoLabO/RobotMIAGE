@@ -5,6 +5,8 @@
 #include "turn.h"
 #include "orientationLibrary.h";
 
+PidOrientation pidOrientation(0);
+/*
 char * oldM = 0;
 int oldX, oldY;
 
@@ -14,7 +16,7 @@ void turnAntiClock(int turnSpeed);
 void pointTo(int angle, int tolerance);
 void easyText(const char *m, int posX, int posY);
 void textInt(int x, int posX, int posY);
-
+*/
 void setup()
 {
 
@@ -29,8 +31,17 @@ void setup()
 
 void loop()
 {
-  
-  easyText("To North", 30, 30);
+
+  if(pidOrientation.isGoalReach()) {
+
+    Robot.beep();
+
+  }
+
+  pidOrientation.correct();
+
+  delay(500);
+  /*easyText("To North", 30, 30);
   pointToCustom(0,200);
   
   easyText("To West", 30, 30);
@@ -56,10 +67,10 @@ void loop()
   easyText("To West", 30, 30);
   pointToCustom(90,200);
   
-  Robot.beep();
+  Robot.beep();*/
   
 }
-
+/*
 void pointTo(int angle, int tolerance) {
   
   const int turnSpeed = 100;
@@ -155,3 +166,4 @@ void textInt(int r, int posX, int posY) {
 }
   
 
+*/

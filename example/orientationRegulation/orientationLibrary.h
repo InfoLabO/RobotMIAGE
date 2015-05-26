@@ -20,7 +20,9 @@ class PidOrientation {
 
  public:
 
-  PidOrientation(int goal);
+  PidOrientation(float goal);
+
+  void setGoal(float goal);
   
   void correct();
   float currentValue();

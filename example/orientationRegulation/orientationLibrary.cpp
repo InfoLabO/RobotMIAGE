@@ -10,9 +10,15 @@ const float PidOrientation::KD = 1;
 
 const int PidOrientation::MinDiff = 100;
 
-PidOrientation::PidOrientation(int goal)
+PidOrientation::PidOrientation(float goal)
   : goal(goal), initilized(false)
 {}
+
+void PidOrientation::setGoal(float goal) {
+
+  this->goal = goal;
+
+}
  
 void PidOrientation::correct() {
 
