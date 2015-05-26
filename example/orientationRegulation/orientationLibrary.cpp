@@ -4,11 +4,11 @@
 #include <SPI.h>
 #include <Wire.h>
 
-const float PidOrientation::KP = 1;
-const float PidOrientation::KI = 1;
-const float PidOrientation::KD = 1;
+const float PidOrientation::KP = 0.4;
+const float PidOrientation::KI = 0.3;
+const float PidOrientation::KD = 0.0;
 
-const int PidOrientation::MinDiff = 100;
+const int PidOrientation::MinDiff = 130;
 
 PidOrientation::PidOrientation(float goal)
   : goal(goal), initilized(false)
@@ -20,49 +20,75 @@ void PidOrientation::setGoal(float goal) {
 
 }
  
-void PidOrientation::correct() {
+float PidOrientation::correct() {
 
   float currentError;
-  unsigned long currentTime;
-  unsigned int deltaTime;
+  float currentTime;
+  float deltaTime;
   float deltaError;
   float correction;
   bool clockWise;
+  unsigned int diff;
+  unsigned int motorSpeed;
 
   // Init case
   if(!initilized) {
     
-    lastTime = currentTime;
-    lastError = error();
+    lastTime = millis()/1000.0;
+    lastError = this->error();
     sumError = 0;
     initilized = true;
 
-    return;
+    return 0.0;
 
   }
 
-  // Compute values
-  currentError = error();
-  currentTime = millis();
-  deltaTime = lastTime - currentTime;
-  lastTime = currentTime;
+  currentTime = millis()/1000.0;
+  if(currentTime - lastTime < 0.25)
+    delay((0.25-(currentTime - lastTime))*1000);
+
+  // Get current values
+  currentError = this->error();
+  currentTime = millis()/1000.0;
+  
+  // Compute pid
+  deltaTime = currentTime - lastTime;
   sumError += currentError*deltaTime;
   deltaError = (currentError-lastError)/deltaTime;
-  lastError = currentError;
   correction = KP*currentError + KI*sumError + KD*deltaError;
+  
+  // Memorize values for next step
+  lastTime = currentTime;
+  lastError = currentError;
 
+  // Apply correction on motors
   clockWise = correction > 0;
-  correction = abs(correction) + MinDiff/2;
-
+  diff = abs(correction) + MinDiff;
+  if( diff > 510) diff = 510;
+  
+  // If correction is really low
+  if(-1 < correction && correction < 1) {
+    
+    Robot.motorsWrite(0,0);
+    return 0.0;
+    
+  }
+  
+  motorSpeed = diff/2;
+  
+  // CW turn
   if(clockWise) {
     
-    Robot.motorsWrite(correction,-correction);
+    Robot.motorsWrite(-motorSpeed,motorSpeed);
 
   } else {
     
-    Robot.motorsWrite(-correction,correction);
+    // CCW turn 
+    Robot.motorsWrite(motorSpeed,-motorSpeed);
 
   }
+  
+  return correction;
   
 }
 
@@ -73,7 +99,7 @@ float PidOrientation::currentValue() {
 }
 
 float PidOrientation::error(){
-  float error = (int)(goal-currentValue())% 360;
+  float error = (int)(this->goal-this->currentValue())% 360;
   if(error > 180){
     error = error-360;
   }else if(error <-180){

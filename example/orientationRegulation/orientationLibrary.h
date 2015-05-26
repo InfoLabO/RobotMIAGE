@@ -12,7 +12,7 @@ class PidOrientation {
 
   bool initilized;
   
-  unsigned long lastTime;
+  float lastTime;
   float sumError;
   float lastError;
 
@@ -24,7 +24,7 @@ class PidOrientation {
 
   void setGoal(float goal);
   
-  void correct();
+  float correct();
   float currentValue();
   float error();
   void stop();
