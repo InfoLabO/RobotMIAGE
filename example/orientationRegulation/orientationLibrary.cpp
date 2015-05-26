@@ -1,122 +1,87 @@
-#include <ArduinoRobot.h>
-
 #include "orientationLibrary.h";
-#include <Wire.h>
+
+#include <ArduinoRobot.h>
 #include <SPI.h>
+#include <Wire.h>
 
-void turn(int angle)
-{
-  int current = Robot.compassRead();
-  pointToCustom((current + angle + 360) % 360, 150); 
-}
+const float PidOrientation::KP = 1;
+const float PidOrientation::KI = 1;
+const float PidOrientation::KD = 1;
 
-void pointToCustom(int angle, int speed)
-{
-  int target = (angle + 360) % 360;
-  int current = 0;
-  int otherSide = 0;
-  int lastWay = -1, way = -1;
-  
-  while(speed >= 50)
-  {
-    current = Robot.compassRead();
-    Robot.debugPrint(current);
-    
-    if(abs(current - target) == 0)
-    {
-      Robot.motorsStop();
-      delay(500);
-      if(abs(Robot.compassRead() - target) != 0)
-      {
-        pointToCustom(angle, speed - 50);
-      }
-      break;
-    }
-    
-    otherSide = (current + 180) % 360;
-    lastWay = way;
-    if(otherSide < current)
-    {
-      if(otherSide < target && target < current)
-      {
-        way = 1;
-        Robot.motorsWrite(speed, -speed);
-      }
-      else
-      {
-        way = 0;
-        Robot.motorsWrite(-speed, speed);
-      }
-    }
-    else
-    {
-      if(current < target && target < otherSide)
-      {
-        way = 0;
-        Robot.motorsWrite(-speed, speed);
-      }
-      else
-      {
-        way = 1;
-        Robot.motorsWrite(speed, -speed);
-      }
-    }
-    
-    if(lastWay >= 0 && way != lastWay)
-    {
-      speed -= 10;
-    }
-  }
- }
- 
- 
-int errAngular(int angleActuel,int angleObjectif){
-   int erreur = (angleObjectif-angleActuel)% 360;
-   if(erreur > 180){
-       erreur = erreur-360;
-   }else if(erreur <-180){
-       erreur = erreur + 360;
-   }
-   return erreur;
- }
- 
-void pidAngular(int error, int &ML, int &MR,){
+const int PidOrientation::MinDiff = 100;
 
-  unsigned long currentTime = millis();
+PidOrientation::PidOrientation(int goal)
+  : goal(goal), initilized(false)
+{}
+ 
+void PidOrientation::correct() {
+
+  float currentError;
+  unsigned long currentTime;
   unsigned int deltaTime;
   float deltaError;
-  int correction;
+  float correction;
+  bool clockWise;
 
   // Init case
-  if(lastTime = 0) {
+  if(!initilized) {
     
     lastTime = currentTime;
-    lastError = error;
+    lastError = error();
+    sumError = 0;
+    initilized = true;
 
     return;
 
   }
 
+  // Compute values
+  currentError = error();
+  currentTime = millis();
   deltaTime = lastTime - currentTime;
   lastTime = currentTime;
-  sumError += error*deltaTime;
-  deltaError = (error-lastError)/deltaTime;
-  correction = kp*error + ki*sumError + kd*deltaError;
+  sumError += currentError*deltaTime;
+  deltaError = (currentError-lastError)/deltaTime;
+  lastError = currentError;
+  correction = KP*currentError + KI*sumError + KD*deltaError;
 
-  /*
-  if(pid < 0){
-    pid=0;
+  clockWise = correction > 0;
+  correction = abs(correction) + MinDiff/2;
+
+  if(clockWise) {
+    
+    Robot.motorsWrite(correction,-correction);
+
+  } else {
+    
+    Robot.motorsWrite(-correction,correction);
+
   }
-  else if(pid > 255){
-    pid = 255;
-  }
-  if(erreur>0){
-    &ML = 255 - pid;
-    &MR = pid -255 ;
-  }else{
-    &MR = 255 - pid;
-    &ML = pid -255 ;
-  }
-  */
   
+}
+
+float PidOrientation::currentValue() {
+
+  return Robot.compassRead();
+
+}
+
+float PidOrientation::error(){
+  float error = (int)(goal-currentValue())% 360;
+  if(error > 180){
+    error = error-360;
+  }else if(error <-180){
+    error = error + 360;
+  }
+  return error;
+}
+
+void PidOrientation::stop() {
+  initilized = false;
+}
+
+bool PidOrientation::isGoalReach() {
+
+  return goal == currentValue();
+
 }

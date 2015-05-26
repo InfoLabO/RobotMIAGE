@@ -1,15 +1,32 @@
 #pragma once
-#include <ArduinoRobot.h>
 
-const int KP = 1;
-const int KI = 1;
-const int KD = 1;
+class PidOrientation {
 
-unsigned long lastTime = 0;
-float lastError = 0;
-float sumError  = 0;
+ private:
+  
+  static const float KP;
+  static const float KI;
+  static const float KD;
 
-void turn(int angle);
-void pointToCustom(int angle, int speed);
-int errAngular(int angleActuel,int angleObjectif);
-void pidAngular(int erreur, int erreurPrecedente, int &ML,int &MR int &sommeErreur);
+  static const int MinDiff;
+
+  bool initilized;
+  
+  unsigned long lastTime;
+  float sumError;
+  float lastError;
+
+  float goal;
+
+ public:
+
+  PidOrientation(int goal);
+  
+  void correct();
+  float currentValue();
+  float error();
+  void stop();
+  
+  bool isGoalReach();
+  
+};
