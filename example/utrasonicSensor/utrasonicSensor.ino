@@ -19,6 +19,7 @@ void setup() {
   Serial.begin(9600);
   Robot.begin();
   Robot.beginTFT();
+  Robot.setMode(MODE_SIMPLE);
 }
 
 void loop() {
