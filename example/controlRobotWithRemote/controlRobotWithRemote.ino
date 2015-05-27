@@ -1,31 +1,27 @@
 #include <ArduinoRobot.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <SoftwareSerial.h>
 
-int LeftMotorForward = 10 ; 
-int LeftMotorReverse = 9 ; 
-int RightMotorForward = 12 ; 
-int RightMotorReverse = 13 ; 
-
+SoftwareSerial serial(D0,D1);
 void setup() {
-  // put your setup code here, to run once:
-        Robot.begin();
-	Robot.beginTFT();
-	Robot.beginSpeaker();
-        pinMode(LeftMotorForward , OUTPUT) ;
-        pinMode(RightMotorForward , OUTPUT);
-        pinMode(LeftMotorReverse , OUTPUT);
-        pinMode(RightMotorReverse , OUTPUT);
+  
+  Robot.begin();
+  Robot.beginSpeaker();
+//  pinMode(13,OUTPUT);
+  serial.begin(9600);
+  Robot.beep(BEEP_SIMPLE);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(RightMotorForward , HIGH) ; 
-  digitalWrite ( LeftMotorForward , HIGH) ; 
-  delay(1000);
-  digitalWrite(RightMotorForward , LOW) ;
-  digitalWrite(LeftMotorForward , LOW); 
-  delay(1000); 
+
+  if(serial.available() > 0)
+    Robot.beep(BEEP_SIMPLE);
+//    digitalWrite(13, HIGH);
   
+  delay(300);
+//  digitalWrite(13,LOW);
+
+  delay(300);
   
 }
