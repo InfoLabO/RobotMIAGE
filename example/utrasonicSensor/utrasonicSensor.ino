@@ -22,10 +22,14 @@ void setup() {
 }
 
 void loop() {
+  printDistanceOnTFT(frontPin);
+    /*
   if(getDistance(frontPin)<40){
     Robot.motorsStop();
     Robot.motorsWrite(255 , -255 ) ; 
   }else{
-    Robot.motorsWrite(255,255);
-   }
+    Robot.motorsStop();
+    //Robot.motorsWrite(255,255);
+    }
+    */
 }

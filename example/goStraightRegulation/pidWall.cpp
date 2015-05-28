@@ -1,26 +1,27 @@
-#include "orientationLibrary.h";
+#include "pidWall.h";
+#include "USSensorUtils.h";
 
 #include <ArduinoRobot.h>
 #include <SPI.h>
 #include <Wire.h>
 
-const float PidOrientation::KP = 0.4;
-const float PidOrientation::KI = 0.3;
-const float PidOrientation::KD = 0.0;
+const float PidWall::KP = 0.4;
+const float PidWall::KI = 0.3;
+const float PidWall::KD = 0.0;
 
-const int PidOrientation::MinDiff = 130;
+const int PidWall::MinDiff = 0;
 
-PidOrientation::PidOrientation(float goal)
-  : goal(goal), initilized(false)
+PidWall::PidWall(float goal ,int sensorPin)
+  : goal(goal), initilized(false),sensorPin(sensorPin)
 {}
 
-void PidOrientation::setGoal(float goal) {
+void PidWall::setGoal(float goal) {
 
   this->goal = goal;
 
 }
  
-float PidOrientation::correct() {
+float PidWall::correct() {
 
   float currentError;
   float currentTime;
@@ -44,9 +45,7 @@ float PidOrientation::correct() {
   }
 
   currentTime = millis()/1000.0;
-  if(currentTime - lastTime < 0.25)
-    delay((0.25-(currentTime - lastTime))*1000);
-
+  
   // Get current values
   currentError = this->error();
   currentTime = millis()/1000.0;
@@ -62,54 +61,46 @@ float PidOrientation::correct() {
   lastError = currentError;
 
   // Apply correction on motors
-  clockWise = correction > 0;
+  clockWise = currentError > 0;
   diff = abs(correction) + MinDiff;
+  if( diff > 30) diff = 30;
+  
   
   // If correction is really low
   if(-1 < correction && correction < 1) {
-    
-    Robot.motorsWrite(0,0);
+    Robot.motorsWrite(255,255);
     return 0.0;
-    
   }
   
-  // CW turn
+  motorSpeed = diff/2;
+  
   if(clockWise) {
-    
-    Robot.motorsWrite(250+correction,250-correction);
-
+    // CW turn
+    //TODO
   } else {
-    
     // CCW turn 
-    Robot.motorsWrite(250-correction,250+correction);
-
+    //TODO
   }
   
   return correction;
   
 }
 
-float PidOrientation::currentValue() {
+float PidWall::currentValue() {
 
-  return Robot.compassRead();
+  return getDistance(sensorPin);
 
 }
 
-float PidOrientation::error(){
-  float error = (int)(this->goal-this->currentValue())% 360;
-  if(error > 180){
-    error = error-360;
-  }else if(error <-180){
-    error = error + 360;
-  }
-  return error;
+float PidWall::error(){
+  return (int)(this->currentValue()-this->goal);
 }
 
-void PidOrientation::stop() {
+void PidWall::stop() {
   initilized = false;
 }
 
-bool PidOrientation::isGoalReach() {
+bool PidWall::isGoalReach() {
 
   return goal == currentValue();
 
