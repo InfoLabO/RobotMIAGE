@@ -1,27 +1,26 @@
-#include "pidWall.h";
-#include "USSensorUtils.h";
+#include "goStraightPID.h";
 
 #include <ArduinoRobot.h>
 #include <SPI.h>
 #include <Wire.h>
 
-const float PidWall::KP = 0.4;
-const float PidWall::KI = 0.3;
-const float PidWall::KD = 0.0;
+const float StraightPID::KP = 0.4;
+const float StraightPID::KI = 0.3;
+const float StraightPID::KD = 0.0;
 
-const int PidWall::MinDiff = 0;
+const int StraightPID::MinDiff = 0;
 
-PidWall::PidWall(float goal ,int sensorPin)
-  : goal(goal), initilized(false),sensorPin(sensorPin)
+StraightPID::StraightPID(float goal)
+  : goal(goal), initilized(false)
 {}
 
-void PidWall::setGoal(float goal) {
+void StraightPID::setGoal(float goal) {
 
   this->goal = goal;
 
 }
  
-float PidWall::correct() {
+float StraightPID::correct() {
 
   float currentError;
   float currentTime;
@@ -87,21 +86,27 @@ float PidWall::correct() {
   
 }
 
-float PidWall::currentValue() {
+float StraightPID::currentValue() {
 
-  return getDistance(sensorPin);
+  return Robot.compassRead();
 
 }
 
-float PidWall::error(){
-  return (int)(this->currentValue()-this->goal);
+float StraightPID::error(){
+  float error = (int)(this->goal-this->currentValue())% 360;
+  if(error > 180){
+    error = error-360;
+  }else if(error <-180){
+    error = error + 360;
+  }
+  return error;
 }
 
-void PidWall::stop() {
+void StraightPID::stop() {
   initilized = false;
 }
 
-bool PidWall::isGoalReach() {
+bool StraightPID::isGoalReach() {
 
   return goal == currentValue();
 

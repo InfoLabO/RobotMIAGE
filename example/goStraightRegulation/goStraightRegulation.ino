@@ -1,24 +1,18 @@
-
+#include "pidWall.h";
 #include <ArduinoRobot.h>
 #include <SPI.h>
 #include <Wire.h>
+
+PidWall pidWall(30,M0 );
 
 void setup() {
   Robot.begin();
   Robot.beginTFT();
   Robot.beginSD();
-  Robot.displayLogos();
 } 
 
 void loop() {
-  goStraight();
-  stopIt();
-  delay(1000);
-  turnRight();
-  delay(1000);
-  goStraight();
-  turnLeft();
-  delay(1000);
+  pidWall.correct();
 }
 
 /**

@@ -64,7 +64,7 @@ float PidOrientation::correct() {
   // Apply correction on motors
   clockWise = correction > 0;
   diff = abs(correction) + MinDiff;
-  
+  if(diff>510) diff = 510;
   // If correction is really low
   if(-1 < correction && correction < 1) {
     
@@ -73,15 +73,17 @@ float PidOrientation::correct() {
     
   }
   
+  motorSpeed=diff/2;
+  
   // CW turn
   if(clockWise) {
     
-    Robot.motorsWrite(250+correction,250-correction);
+    Robot.motorsWrite(-motorSpeed,motorSpeed);
 
   } else {
     
     // CCW turn 
-    Robot.motorsWrite(250-correction,250+correction);
+    Robot.motorsWrite(motorSpeed,-motorSpeed);
 
   }
   
