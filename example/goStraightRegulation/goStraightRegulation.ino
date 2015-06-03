@@ -1,58 +1,48 @@
-#include "goStraightPID.h";
+#include "pidWall.h";
 #include "USSensorUtils.h"
 #include <ArduinoRobot.h>
 #include <SPI.h>
 #include <Wire.h>
 
-StraightPID straightPID(110, 250);
+USSensor *usSensor;
+PidWall *pidWall;
 
 void setup() {
   Robot.begin();
   Robot.beginTFT();
-  Robot.beginSD();
   Serial.begin(9600);
+  usSensor = new USSensor();
+  usSensor->init();
+  pidWall = new PidWall(0, 105, usSensor);
 } 
 
 void loop() {
   
-  Serial.print("Oriantation    :");
-  Serial.println(Robot.compassRead());
+  Serial.print("value   :");
+  Serial.println(Robot.analogRead(M4));
   Serial.print("error      : ");
-  Serial.println(straightPID.error());
+  Serial.println(pidWall->error());
   Serial.print("correction : ");
-  Serial.println(straightPID.correct());
+  Serial.println(pidWall->correct());
   Serial.println("---------------------------------------");
   
-  delay(250);
-  
-}
+  Robot.background(0, 0, 255);
+  Robot.stroke(0, 255, 0);
+  Robot.setCursor(0, 40);
+  Robot.print("left : ");
+  Robot.setCursor(80, 40);
+  Robot.print(Robot.analogRead(M4));
+  Robot.setCursor(0, 60);
+  Robot.print("right : ");
+  Robot.setCursor(80, 60);
+  Robot.print(Robot.analogRead(M0));
+  Robot.setCursor(0, 80);
+  Robot.print("error : ");
+  Robot.setCursor(80, 80);
+  Robot.print(pidWall->error());
+  Robot.setCursor(0, 100);
+  Robot.print("correction : ");
+  Robot.setCursor(80, 100);
+  Robot.print(pidWall->correct());
 
-/**
-Turning left 
-**/
-void turnLeft(){
-  Robot.motorsWrite(0 , 125 ) ; 
-  
-}
-
-/**
-Turning Right 
-**/
-void turnRight(){
-  Robot.motorsWrite(125 , 0 ) ; 
-}
-
-/**
-Stopping the robot 
-**/
-void stopIt() {   
-  Robot.stop() ; 
-}
-
-/**
-Going straight
-**/
-void goStraight(){
-  Robot.motorsWrite(255 , 255 ) ; 
-  delay(1000);
 }

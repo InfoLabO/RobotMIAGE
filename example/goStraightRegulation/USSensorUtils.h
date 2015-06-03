@@ -2,6 +2,26 @@
 
 #include <ArduinoRobot.h>
 
-float getDistance(int pin);
+class USSensor {
   
-void printDistanceOnTFT(int pin);
+  private:
+  
+    static const int DigitalPin;
+    
+    static const int RightPin;
+    static const int LeftPin;
+    static const int FrontPin;
+    static const int BackPin;
+  
+    float getDistance(int pin);
+  
+  public:
+
+    void init();
+    
+    float getRightDistance();
+    float getLeftDistance();
+    float getFrontDistance();
+    float getBackDistance();
+  
+};

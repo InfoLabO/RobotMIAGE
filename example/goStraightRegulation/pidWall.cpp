@@ -5,19 +5,27 @@
 #include <SPI.h>
 #include <Wire.h>
 
-const float PidWall::KP = 0.5;
+const float PidWall::KP = 1.0;
 const float PidWall::KI = 0.0;
 const float PidWall::KD = 0.0;
 
-const unsigned int MaxDiff = 10;
+PidWall::PidWall(float goal, int motorSpeed, USSensor *sensor)
+  : goal(goal), motorSpeed(motorSpeed), sensor(sensor), initilized(false)
+{
 
-PidWall::PidWall(float goal ,int sensorPin)
-  : goal(goal), initilized(false),sensorPin(sensorPin)
-{}
+    maxDiff = (255 - motorSpeed)*2;
+
+}
 
 void PidWall::setGoal(float goal) {
 
   this->goal = goal;
+
+}
+
+void PidWall::setMotorSpeed(int MotorSpeed) {
+
+  this->motorSpeed = motorSpeed;
 
 }
  
@@ -29,13 +37,11 @@ float PidWall::correct() {
   float deltaError;
   float correction;
   bool clockWise;
-  unsigned int diff;
-  int motorSpeed;
+  int diff;
 
   // Init case
   if(!initilized) {
     
-    delay(250);
     lastTime = millis()/1000.0;
     lastError = this->error();
     sumError = 0;
@@ -44,8 +50,6 @@ float PidWall::correct() {
     return 0.0;
 
   }
-
-  currentTime = millis()/1000.0;
   
   // Get current values
   currentError = this->error();
@@ -62,28 +66,25 @@ float PidWall::correct() {
   lastError = currentError;
 
   // Apply correction on motors
-  clockWise = currentError < 0;
+  clockWise = currentError > 0;
   diff = abs(correction);
-  if( diff > MaxDiff) diff = MaxDiff;
-  
-  motorSpeed = 255 - MaxDiff;
+  if( diff > maxDiff) diff = maxDiff;
   
   if(clockWise) {
     // CW turn
-    Robot.motorsWrite(motorSpeed+diff,motorSpeed-diff);
+    Robot.motorsWrite(motorSpeed + diff/2,motorSpeed - diff/2);
   } else {
     // CCW turn 
-    //TODO
-    Robot.motorsWrite(motorSpeed-diff,motorSpeed+diff);
+    Robot.motorsWrite(motorSpeed - diff/2,motorSpeed + diff/2);
   }
   
-  return diff;
+  return (clockWise ? diff : -diff);
   
 }
 
 float PidWall::currentValue() {
 
-  return getDistance(sensorPin);
+  return (sensor->getLeftDistance() - sensor->getRightDistance());
 
 }
 

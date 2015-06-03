@@ -8,11 +8,13 @@ const float StraightPID::KP = 0.4;
 const float StraightPID::KI = 0.0;
 const float StraightPID::KD = 0.0;
 
-const unsigned int StraightPID::MaxDiff = 10;
-
 StraightPID::StraightPID(float goal, int motorSpeed)
   : goal(goal), motorSpeed(motorSpeed), initilized(false)
-{}
+{
+
+    maxDiff = 255 - motorSpeed;
+
+}
 
 void StraightPID::setGoal(float goal) {
 
@@ -35,7 +37,6 @@ float StraightPID::correct() {
   float correction;
   bool clockWise;
   unsigned int diff;
-  unsigned int motorSpeed;
 
   // Init case
   if(!initilized) {
@@ -68,7 +69,7 @@ float StraightPID::correct() {
   diff = abs(correction);
 
   // Bound correction
-  if( diff > MaxDiff) diff = MaxDiff;
+  if( diff > maxDiff) diff = maxDiff;
   
   // If correction is really low
   if(diff < 2) {

@@ -8,7 +8,7 @@ class StraightPID {
   static const float KI;
   static const float KD;
 
-  static const unsigned int MaxDiff;
+  unsigned int maxDiff;
 
   bool initilized;
 

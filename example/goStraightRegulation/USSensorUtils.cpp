@@ -1,19 +1,66 @@
 #include "USSensorUtils.h";
 
-// Return the distance in cm of a specifical pin (M0 to M7 for us)
-float getDistance(int pin) {
-  // read the value from the sensor
-  float sensorValue = Robot.analogRead(pin);
-  //Convert the sensor input to cm.
-  float distance_cm = sensorValue * 1.5;
-  //return distance_cm;
-  return distance_cm;
+const int USSensor::DigitalPin = D0;
+const int USSensor::LeftPin = M4;
+const int USSensor::RightPin = M0;
+const int USSensor::FrontPin = M2;
+const int USSensor::BackPin = M6;
+
+
+void USSensor::init() {
+  
+  delay(250);
+  pinMode(DigitalPin, OUTPUT); // la patte utilisée pour l'activation de la lecture des sonars
+  digitalWrite(DigitalPin, HIGH);
+  delayMicroseconds(25);
+  digitalWrite(DigitalPin, LOW);
+  pinMode(DigitalPin, INPUT);
+  
 }
+
+float USSensor::getDistance(int pin) {
  
-//Print the distance of an obstacle in front of the pin sensor  
-void printDistanceOnTFT(int pin){
-  Robot.background(0, 0, 255);
-  Robot.setCursor(44, 60);
-  Robot.stroke(0, 255, 0);
-  Robot.print(getDistance(pin));  
+  int avg, prevprev, prev, last;
+  
+  prevprev = Robot.analogRead(pin);
+  delay(10);
+  
+  prev = Robot.analogRead(pin);
+  delay(10);
+  
+  do {
+    
+    prevprev = prev;
+    prev = last;
+    last = Robot.analogRead(pin);    
+    avg = (prevprev + prev)>>1; // Average of 2 last distance
+    
+  } while (abs(avg-last)>2);
+  
+  return last; 
+  
+}
+
+float USSensor::getRightDistance() {
+  
+  int left = getDistance(RightPin);
+  
+}
+
+float USSensor::getLeftDistance() {
+  
+  int left = getDistance(LeftPin);
+  
+}
+
+float USSensor::getFrontDistance() {
+  
+  return getDistance(FrontPin);
+  
+}
+
+float USSensor::getBackDistance() {
+  
+  return getDistance(BackPin);
+  
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "USSensorUtils.h"
+
 class PidWall {
 
  private:
@@ -10,17 +12,22 @@ class PidWall {
 
   bool initilized;
   
-  float lastTime;
-  float sumError;
-  float lastError;
-  int sensorPin ;
   float goal;
+  int motorSpeed;
+  USSensor *sensor;
+  int maxDiff;
+  
+  float lastTime;
+  float lastError;
+  
+  float sumError;
 
  public:
 
-  PidWall(float goal,int sensorPin);
+  PidWall(float goal, int motorSpeed, USSensor *sensor);
 
   void setGoal(float goal);
+  void setMotorSpeed(int motorSpeed);
   
   float correct();
   float currentValue();
