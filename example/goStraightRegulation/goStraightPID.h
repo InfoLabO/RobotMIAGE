@@ -8,21 +8,26 @@ class StraightPID {
   static const float KI;
   static const float KD;
 
-  static const int MinDiff;
+  static const unsigned int MaxDiff;
 
   bool initilized;
-  
+
+  // In dregree between 0 and 359 increase in clock wise
+  float goal;
+  int motorSpeed;
+
+  // Time in second
   float lastTime;
+  
   float sumError;
   float lastError;
-  int sensorPin ;
-  float goal;
 
  public:
 
-  StraightPID(float goal,int sensorPin);
+  StraightPID(float goal, int motorSpeed);
 
   void setGoal(float goal);
+  void setMotorSpeed(float motorSpeed);
   
   float correct();
   float currentValue();

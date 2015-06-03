@@ -8,8 +8,6 @@ class PidWall {
   static const float KI;
   static const float KD;
 
-  static const int MinDiff;
-
   bool initilized;
   
   float lastTime;

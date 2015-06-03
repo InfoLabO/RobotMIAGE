@@ -5,13 +5,13 @@
 #include <Wire.h>
 
 const float StraightPID::KP = 0.4;
-const float StraightPID::KI = 0.3;
+const float StraightPID::KI = 0.0;
 const float StraightPID::KD = 0.0;
 
-const int StraightPID::MinDiff = 0;
+const unsigned int StraightPID::MaxDiff = 10;
 
-StraightPID::StraightPID(float goal)
-  : goal(goal), initilized(false)
+StraightPID::StraightPID(float goal, int motorSpeed)
+  : goal(goal), motorSpeed(motorSpeed), initilized(false)
 {}
 
 void StraightPID::setGoal(float goal) {
@@ -19,7 +19,13 @@ void StraightPID::setGoal(float goal) {
   this->goal = goal;
 
 }
- 
+
+void StraightPID::setMotorSpeed(float motorSpeed) {
+
+  this->motorSpeed = motorSpeed;
+
+}
+
 float StraightPID::correct() {
 
   float currentError;
@@ -42,8 +48,6 @@ float StraightPID::correct() {
     return 0.0;
 
   }
-
-  currentTime = millis()/1000.0;
   
   // Get current values
   currentError = this->error();
@@ -61,25 +65,23 @@ float StraightPID::correct() {
 
   // Apply correction on motors
   clockWise = currentError > 0;
-  diff = abs(correction) + MinDiff;
-  if( diff > 30) diff = 30;
-  
+  diff = abs(correction);
+
+  // Bound correction
+  if( diff > MaxDiff) diff = MaxDiff;
   
   // If correction is really low
-  if(-1 < correction && correction < 1) {
-    Robot.motorsWrite(255,255);
+  if(diff < 2) {
+    Robot.motorsWrite(motorSpeed,motorSpeed);
     return 0.0;
   }
   
-  motorSpeed = diff/2;
-  
   if(clockWise) {
     // CW turn
-    Robot.motorsWrite(250+correction,250-correction);
+    Robot.motorsWrite(motorSpeed+diff/2,motorSpeed-diff/2);
   } else {
     // CCW turn 
-    //TODO
-    Robot.motorsWrite(250-correction,250+correction);
+    Robot.motorsWrite(motorSpeed-diff/2,motorSpeed+diff/2);
   }
   
   return correction;

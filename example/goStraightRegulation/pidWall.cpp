@@ -5,11 +5,11 @@
 #include <SPI.h>
 #include <Wire.h>
 
-const float PidWall::KP = 0.4;
-const float PidWall::KI = 0.3;
+const float PidWall::KP = 0.5;
+const float PidWall::KI = 0.0;
 const float PidWall::KD = 0.0;
 
-const int PidWall::MinDiff = 0;
+const unsigned int MaxDiff = 10;
 
 PidWall::PidWall(float goal ,int sensorPin)
   : goal(goal), initilized(false),sensorPin(sensorPin)
@@ -30,11 +30,12 @@ float PidWall::correct() {
   float correction;
   bool clockWise;
   unsigned int diff;
-  unsigned int motorSpeed;
+  int motorSpeed;
 
   // Init case
   if(!initilized) {
     
+    delay(250);
     lastTime = millis()/1000.0;
     lastError = this->error();
     sumError = 0;
@@ -61,29 +62,22 @@ float PidWall::correct() {
   lastError = currentError;
 
   // Apply correction on motors
-  clockWise = currentError > 0;
-  diff = abs(correction) + MinDiff;
-  if( diff > 30) diff = 30;
+  clockWise = currentError < 0;
+  diff = abs(correction);
+  if( diff > MaxDiff) diff = MaxDiff;
   
-  
-  // If correction is really low
-  if(-1 < correction && correction < 1) {
-    Robot.motorsWrite(255,255);
-    return 0.0;
-  }
-  
-  motorSpeed = diff/2;
+  motorSpeed = 255 - MaxDiff;
   
   if(clockWise) {
     // CW turn
-    Robot.motorsWrite(250+correction,250-correction);
+    Robot.motorsWrite(motorSpeed+diff,motorSpeed-diff);
   } else {
     // CCW turn 
     //TODO
-    Robot.motorsWrite(250-correction,250+correction);
+    Robot.motorsWrite(motorSpeed-diff,motorSpeed+diff);
   }
   
-  return correction;
+  return diff;
   
 }
 
@@ -94,7 +88,7 @@ float PidWall::currentValue() {
 }
 
 float PidWall::error(){
-  return (int)(this->currentValue()-this->goal);
+  return this->currentValue()-this->goal;
 }
 
 void PidWall::stop() {

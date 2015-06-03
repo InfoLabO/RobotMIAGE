@@ -1,18 +1,30 @@
-#include "pidWall.h";
+#include "goStraightPID.h";
+#include "USSensorUtils.h"
 #include <ArduinoRobot.h>
 #include <SPI.h>
 #include <Wire.h>
 
-PidWall pidWall(30,M0 );
+StraightPID straightPID(110, 250);
 
 void setup() {
   Robot.begin();
   Robot.beginTFT();
   Robot.beginSD();
+  Serial.begin(9600);
 } 
 
 void loop() {
-  pidWall.correct();
+  
+  Serial.print("Oriantation    :");
+  Serial.println(Robot.compassRead());
+  Serial.print("error      : ");
+  Serial.println(straightPID.error());
+  Serial.print("correction : ");
+  Serial.println(straightPID.correct());
+  Serial.println("---------------------------------------");
+  
+  delay(250);
+  
 }
 
 /**

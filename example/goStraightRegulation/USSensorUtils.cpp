@@ -3,7 +3,7 @@
 // Return the distance in cm of a specifical pin (M0 to M7 for us)
 float getDistance(int pin) {
   // read the value from the sensor
-  int sensorValue = Robot.analogRead(pin);
+  float sensorValue = Robot.analogRead(pin);
   //Convert the sensor input to cm.
   float distance_cm = sensorValue * 1.5;
   //return distance_cm;
