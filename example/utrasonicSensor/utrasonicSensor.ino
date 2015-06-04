@@ -5,31 +5,37 @@
 #include <SPI.h>
 
 // pin is used by the sensors
-int rightPin = M0;
-int frontRightPin = M1;
-int frontPin = M2;
-int frontLeftPin = M3;
-int leftPin = M4;
-int backleftPin = M5;
-int backPin = M6;
-int backRightPin = M7;
-
+USSensor *usSensor;
+int USLValue;
+int USRValue;
 
 void setup() {
   Serial.begin(9600);
   Robot.begin();
   Robot.beginTFT();
+  usSensor = new USSensor();
+  usSensor->init();
 }
 
 void loop() {
-  printDistanceOnTFT(frontPin);
-    /*
-  if(getDistance(frontPin)<40){
+  USRValue = usSensor->getLeftDistance();
+  USLValue = usSensor->getRightDistance();
+  if(usSensor->getFrontDistance()<25 || USLValue<12 || USRValue<12){
+    
     Robot.motorsStop();
-    Robot.motorsWrite(255 , -255 ) ; 
-  }else{
-    Robot.motorsStop();
-    //Robot.motorsWrite(255,255);
+    if(USLValue<12){
+        Robot.motorsWrite(80 , -80) ; 
+    }else if(USRValue<12){
+      Robot.motorsWrite(-80 , 80) ; 
+    }else {
+        if(USRValue< USLValue){
+         Robot.motorsWrite(-80 , 80) ; 
+        }else{
+           Robot.motorsWrite(80 , -80) ; 
+         } 
     }
-    */
+     
+  }else{
+    Robot.motorsWrite(200,200);
+    }
 }
